@@ -1,0 +1,9 @@
+ST47_Sim800.c:15:6:simcom_delete_buffer	24	static
+ST47_Sim800.c:24:9:simcom_at_command	40	static
+ST47_Sim800.c:73:6:simcom_init	8	static
+ST47_Sim800.c:81:6:simcom_gprs_start	8	static
+ST47_Sim800.c:96:6:simcom_gprs_http_start	8	static
+ST47_Sim800.c:105:6:simcom_gprs_http_set_ssl	8	static
+ST47_Sim800.c:111:6:simcom_gprs_http_end	8	static
+ST47_Sim800.c:117:6:simcom_gprs_end	8	static
+ST47_Sim800.c:123:6:firebase_update	48	static
