@@ -62,12 +62,13 @@ static void MX_USART3_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 uint32_t time_get_gps = 0;
-float my_lat, my_long;
+float my_lat = 0, my_long = 0;
 extern GPS_Struct gps;
 bool flag = true;
+uint8_t rx;
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	if(huart->Instance == USART1)
+	if(huart->Instance == USART1 && flag == true)
 	{
 		gps_callback();
 	}
@@ -106,7 +107,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-  //simcom_init();
+  simcom_init();
   gps_init();
   /* USER CODE END 2 */
 
@@ -117,16 +118,14 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(HAL_GetTick() - time_get_gps >5000)
+	  if(HAL_GetTick() - time_get_gps > 5000)
 	  {
-		  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, 1);
 		  time_get_gps = HAL_GetTick();
+		  flag = false;
 		  gps_process_data(gps.buffer);
 		  my_lat = gps_get_latitude();
 		  my_long = gps_get_longitude();
-		  //flag = false;
 		  firebase_update(my_lat,my_long);
-		  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, 0);
 	  }
   }
   /* USER CODE END 3 */

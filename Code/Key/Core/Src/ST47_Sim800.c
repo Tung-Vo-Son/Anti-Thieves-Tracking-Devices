@@ -7,11 +7,11 @@
 
 #include "ST47_Sim800.h"
 #include "Float_String_Convert.h"
-
+#include "stdbool.h"
 Simcom_Struct simcom;
 char json_test[100];
 
-
+extern uint8_t flag;
 void simcom_delete_buffer(char* buffer)
 {
 	simcom.at_cmd.index = 0;
@@ -76,6 +76,10 @@ void simcom_init()
 	HAL_Delay(100);
 	simcom_at_command("ATE0", "OK", 1000);
 	HAL_Delay(100);
+	simcom_gprs_http_end();
+	simcom_gprs_end();
+	simcom_gprs_start();
+	simcom_gprs_http_start();
 }
 
 void simcom_gprs_start()
@@ -122,7 +126,7 @@ void simcom_gprs_end()
 
 void firebase_update(float data1, float data2)
 {
-	simcom_at_command("AT+HTTPPARA=\"URL\",\"https://key-gps-tracking-default-rtdb.firebaseio.com/id.json\"", "OK", 1000);
+	simcom_at_command("AT+HTTPPARA=\"URL\",\"https://key-gps-tracking-default-rtdb.firebaseio.com/id.json?x-http-method-override=PATCH\"", "OK", 1000);
 	HAL_Delay(500);
 
 	simcom_at_command("AT+HTTPPARA=\"CONTENT\",\"application/json\"", "OK", 1000);
@@ -144,5 +148,6 @@ void firebase_update(float data1, float data2)
 		simcom_at_command("AT+HTTPACTION=1", "+HTTPACTION:", 1000);
 		HAL_Delay(1000);
 		free(json);
+		flag = true;
 	}
 }
