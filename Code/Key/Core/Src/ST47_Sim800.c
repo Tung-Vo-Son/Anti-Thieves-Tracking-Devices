@@ -11,7 +11,7 @@
 Simcom_Struct simcom;
 char json_test[100];
 
-extern uint8_t flag;
+extern bool flag;
 void simcom_delete_buffer(char* buffer)
 {
 	simcom.at_cmd.index = 0;
@@ -132,7 +132,7 @@ void firebase_update(float data1, float data2)
 	simcom_at_command("AT+HTTPPARA=\"CONTENT\",\"application/json\"", "OK", 1000);
 	HAL_Delay(500);
 
-	simcom_at_command("AT+HTTPDATA=100,25000", "DOWNLOAD", 1000);
+	simcom_at_command("AT+HTTPDATA=100,10000", "DOWNLOAD", 1000);
 	HAL_Delay(500);
 
 	char* json = malloc(80);
@@ -141,13 +141,13 @@ void firebase_update(float data1, float data2)
 	ftoa(data2, lng, 4);
 	sprintf(json, "{\"user\":\"HdN5SFXjEEamZksgFDpN2joyMAh66IfoBtmgRRYO\",\"lat\":\"%s\",\"lng\":\"%s\"}", lat, lng); // @suppress("Float formatting support")
 	strcpy(json_test, json);
-	if(simcom_at_command(json, "OK", 25000) == 1)
+	if(simcom_at_command(json, "OK", 10000) == 1)
 	{
 		simcom_gprs_http_set_ssl();
 
 		simcom_at_command("AT+HTTPACTION=1", "+HTTPACTION:", 1000);
 		HAL_Delay(1000);
 		free(json);
-		flag = true;
 	}
+	flag = true;
 }

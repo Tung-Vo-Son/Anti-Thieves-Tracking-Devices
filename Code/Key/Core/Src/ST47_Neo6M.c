@@ -8,7 +8,7 @@
 
 #include "ST47_Neo6M.h"
 GPS_Struct gps;
-
+extern bool flag;
 float convert(float location)
 {
 	 float degrees = floor(location / 100);
@@ -54,6 +54,7 @@ void gps_callback()
 
 void gps_process_data(char* buffer)
 {
+	flag = false;
 	if(gps.flag == true)
 	{
 //		HAL_UART_Transmit(&debug, gps.buffer, sizeof(gps.buffer), 2000);
@@ -70,6 +71,7 @@ void gps_process_data(char* buffer)
 		}
 		free(response);
 		gps.flag = false;
+
 	}
 }
 

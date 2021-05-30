@@ -65,7 +65,6 @@ uint32_t time_get_gps = 0;
 float my_lat = 0, my_long = 0;
 extern GPS_Struct gps;
 bool flag = true;
-uint8_t rx;
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart->Instance == USART1 && flag == true)
@@ -118,10 +117,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(HAL_GetTick() - time_get_gps > 5000)
+	  if(HAL_GetTick() - time_get_gps > 20000)
 	  {
 		  time_get_gps = HAL_GetTick();
-		  flag = false;
 		  gps_process_data(gps.buffer);
 		  my_lat = gps_get_latitude();
 		  my_long = gps_get_longitude();
