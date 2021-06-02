@@ -7,11 +7,11 @@
 
 #include "ST47_Sim800.h"
 #include "Float_String_Convert.h"
-#include "stdbool.h"
+
+
 Simcom_Struct simcom;
 char json_test[100];
 
-extern bool flag;
 void simcom_delete_buffer(char* buffer)
 {
 	simcom.at_cmd.index = 0;
@@ -76,11 +76,9 @@ void simcom_init()
 	HAL_Delay(100);
 	simcom_at_command("ATE0", "OK", 1000);
 	HAL_Delay(100);
-	simcom_gprs_http_end();
-	simcom_gprs_end();
-	simcom_gprs_start();
-	simcom_gprs_http_start();
+	simcom_gprs_init();
 }
+
 
 void simcom_gprs_start()
 {
@@ -124,30 +122,103 @@ void simcom_gprs_end()
 	HAL_Delay(100);
 }
 
-void firebase_update(float data1, float data2)
+void simcom_gprs_init()
 {
-	simcom_at_command("AT+HTTPPARA=\"URL\",\"https://key-gps-tracking-default-rtdb.firebaseio.com/id.json?x-http-method-override=PATCH\"", "OK", 1000);
+	simcom_gprs_http_end();
+	simcom_gprs_end();
+	simcom_gprs_start();
+	simcom_gprs_http_start();
+}
+
+void simcom_send_sms(char* phone_number, char* message)
+{
+//	AT+CMGF=1$0D$0A				// Text mode
+//	AT+CMGS="0982428086"$0D$0A	// Số điện thoại
+//	hi$1A
+	simcom_at_command("AT+CMGF=1", "OK", 1000);
+	HAL_Delay(50);
+
+	char cmd[20];
+	sprintf(cmd, "AT+CMGS=\"%s\"", phone_number);
+	if(simcom_at_command((char*)cmd, ">", 5000) == 1)
+	{
+		char sms[20];
+		sprintf(sms, "%s%c",message,26);
+		simcom_at_command((char*)sms, "OK", 5000);
+	}
+
+}
+
+void firebase_update(char* url, char* device_id, char* user_id, char* secret_key, float data1, float data2)
+{
+	char firebase_init_command[100];
+	sprintf(firebase_init_command, "AT+HTTPPARA=\"URL\",\"%s%s.json?x-http-method-override=PATCH\"", url, device_id);
+
+	simcom_at_command(firebase_init_command, "OK", 1000);
+	HAL_Delay(200);
+
+	simcom_at_command("AT+HTTPPARA=\"CONTENT\",\"application/json\"", "OK", 1000);
+	HAL_Delay(200);
+
+	simcom_at_command("AT+HTTPDATA=200,10000", "DOWNLOAD", 1000);
+	HAL_Delay(500);
+
+	char json[150];
+	char lat[10], lng[10];
+	ftoa(data1, lat, 4);
+	ftoa(data2, lng, 4);
+	sprintf(json, "{\"ID\":\"%s\",\"Location\":{\"latitude\":\"%s\",\"longitude\":\"%s\"},\"User\":\"%s\"}", user_id, lat, lng, secret_key);
+	if(simcom_at_command(json, "OK", 25000) == 1)
+	{
+		simcom_gprs_http_set_ssl();
+		simcom_at_command("AT+HTTPACTION=1", "+HTTPACTION:", 1000);
+		HAL_Delay(1000);
+	}
+
+
+}
+//void firebase_update(float data1, float data2)
+//{
+//	simcom_at_command("AT+HTTPPARA=\"URL\",\"https://key-gps-tracking-default-rtdb.firebaseio.com/id.json?x-http-method-override=PATCH\"", "OK", 1000);
+//	HAL_Delay(500);
+//
+//	simcom_at_command("AT+HTTPPARA=\"CONTENT\",\"application/json\"", "OK", 1000);
+//	HAL_Delay(500);
+//
+//	simcom_at_command("AT+HTTPDATA=100,5000", "DOWNLOAD", 1000);
+//	HAL_Delay(500);
+//
+//	char* json = malloc(80);
+//	char lat[10],lng[10];
+//	ftoa(data1,lat,4);
+//	ftoa(data2, lng, 4);
+//	sprintf(json, "{\"user\":\"HdN5SFXjEEamZksgFDpN2joyMAh66IfoBtmgRRYO\",\"lat\":\"%s\",\"lng\":\"%s\"}", lat, lng); // @suppress("Float formatting support")
+//	strcpy(json_test, json);
+//	if(simcom_at_command(json, "OK", 25000) == 1)
+//	{
+//		simcom_gprs_http_set_ssl();
+//
+//		simcom_at_command("AT+HTTPACTION=1", "+HTTPACTION:", 1000);
+//		HAL_Delay(1000);
+//		free(json);
+//	}
+//}
+
+
+char* firebase_read_json()
+{
+	simcom_at_command("AT+HTTPPARA=\"URL\",\"https://key-gps-tracking-default-rtdb.firebaseio.com/id.json\"", "OK", 1000);
 	HAL_Delay(500);
 
 	simcom_at_command("AT+HTTPPARA=\"CONTENT\",\"application/json\"", "OK", 1000);
 	HAL_Delay(500);
 
-	simcom_at_command("AT+HTTPDATA=100,10000", "DOWNLOAD", 1000);
-	HAL_Delay(500);
+	simcom_gprs_http_set_ssl();
 
-	char* json = malloc(80);
-	char lat[10],lng[10];
-	ftoa(data1,lat,4);
-	ftoa(data2, lng, 4);
-	sprintf(json, "{\"user\":\"HdN5SFXjEEamZksgFDpN2joyMAh66IfoBtmgRRYO\",\"lat\":\"%s\",\"lng\":\"%s\"}", lat, lng); // @suppress("Float formatting support")
-	strcpy(json_test, json);
-	if(simcom_at_command(json, "OK", 10000) == 1)
+	if(simcom_at_command("AT+HTTPACTION=0", "+HTTPACTION:", 5000) == 1)
 	{
-		simcom_gprs_http_set_ssl();
-
-		simcom_at_command("AT+HTTPACTION=1", "+HTTPACTION:", 1000);
-		HAL_Delay(1000);
-		free(json);
+		simcom_at_command("AT+HTTPREAD", "{", 5000);
 	}
-	flag = true;
+	HAL_Delay(500);
+	return (char*)simcom.at_cmd.response;
 }

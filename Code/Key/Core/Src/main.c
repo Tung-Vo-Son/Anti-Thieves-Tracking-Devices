@@ -107,7 +107,8 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   simcom_init();
-  gps_init();
+//  gps_init();
+  firebase_update("https://ggmaptest-304715-default-rtdb.firebaseio.com/", "98N21033", "tungvoson98@gmail.com", "D16Hr73bmZPFxlMfcjx0f7iCJqdFGhpElc9RtZAo", 1.000, 2.000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -117,12 +118,13 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(HAL_GetTick() - time_get_gps > 20000)
-	  {
-		  time_get_gps = HAL_GetTick();
-		  gps_process_data(gps.buffer);
-		  firebase_update(gps_get_latitude(),gps_get_longitude());
-	  }
+//	  if(HAL_GetTick() - time_get_gps > 20000)
+//	  {
+//		  time_get_gps = HAL_GetTick();
+//		  gps_process_data(gps.buffer);
+//		  firebase_update(gps_get_latitude(),gps_get_longitude());
+//	  }
+
   }
   /* USER CODE END 3 */
 }
