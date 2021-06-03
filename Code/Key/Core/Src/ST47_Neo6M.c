@@ -54,7 +54,6 @@ void gps_callback()
 
 void gps_process_data(char* buffer)
 {
-	flag = false;
 	if(gps.flag == true)
 	{
 //		HAL_UART_Transmit(&debug, gps.buffer, sizeof(gps.buffer), 2000);

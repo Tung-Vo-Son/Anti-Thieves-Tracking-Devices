@@ -49,7 +49,8 @@ void simcom_gprs_end();
 void simcom_gprs_http_set_ssl();
 
 /*----------Simcom Firebase-------------*/
-//void firebase_update(float data1, float data2);
+void firebase_update1(float data1, float data2);
+void firebase_update2(float data1, float data2);
 void firebase_update(char* url, char* device_id, char* user_id, char* secret_key, float data1, float data2);
 char* firebase_read_json();
 

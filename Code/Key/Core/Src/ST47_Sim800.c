@@ -29,8 +29,8 @@ uint8_t simcom_at_command(char* command, char* response, uint32_t timeout)
 	uint32_t time_out_transmit = HAL_GetTick();
 	uint32_t time_out_get_response = HAL_GetTick();
 
-	HAL_UART_Transmit(&huart3, (uint8_t*)command, strlen(command), 1000);
-	HAL_UART_Transmit(&huart3, (uint8_t*)"\r\n", strlen("\r\n"), 1000);
+	HAL_UART_Transmit(&huart3, (uint8_t*)command, strlen(command), 5000);
+	HAL_UART_Transmit(&huart3, (uint8_t*)"\r\n", strlen("\r\n"), 5000);
 
 	while(status == 0)
 	{
@@ -151,58 +151,83 @@ void simcom_send_sms(char* phone_number, char* message)
 
 void firebase_update(char* url, char* device_id, char* user_id, char* secret_key, float data1, float data2)
 {
-	char firebase_init_command[100];
+	char firebase_init_command[150];
 	sprintf(firebase_init_command, "AT+HTTPPARA=\"URL\",\"%s%s.json?x-http-method-override=PATCH\"", url, device_id);
 
 	simcom_at_command(firebase_init_command, "OK", 1000);
-	HAL_Delay(200);
-
-	simcom_at_command("AT+HTTPPARA=\"CONTENT\",\"application/json\"", "OK", 1000);
-	HAL_Delay(200);
-
-	simcom_at_command("AT+HTTPDATA=200,10000", "DOWNLOAD", 1000);
 	HAL_Delay(500);
 
-	char json[150];
+	simcom_at_command("AT+HTTPPARA=\"CONTENT\",\"application/json\"", "OK", 1000);
+	HAL_Delay(500);
+
+	simcom_at_command("AT+HTTPDATA=200,10000", "DOWNLOAD", 10000);
+	HAL_Delay(500);
+
+	char* json = malloc(150);
 	char lat[10], lng[10];
 	ftoa(data1, lat, 4);
 	ftoa(data2, lng, 4);
 	sprintf(json, "{\"ID\":\"%s\",\"Location\":{\"latitude\":\"%s\",\"longitude\":\"%s\"},\"User\":\"%s\"}", user_id, lat, lng, secret_key);
+	if(simcom_at_command(json, "OK", 10000) == 1)
+	{
+		simcom_gprs_http_set_ssl();
+		simcom_at_command("AT+HTTPACTION=1", "+HTTPACTION:", 10000);
+		free(json);
+	}
+}
+
+void firebase_update2(float data1, float data2)
+{
+	simcom_at_command("AT+HTTPPARA=\"URL\",\"https://ggmaptest-304715-default-rtdb.firebaseio.com/98N21033.json?x-http-method-override=PATCH\"", "OK", 1000);
+	HAL_Delay(1000);
+
+	simcom_at_command("AT+HTTPPARA=\"CONTENT\",\"application/json\"", "OK", 1000);
+	HAL_Delay(1000);
+
+	simcom_at_command("AT+HTTPDATA=200,10000", "DOWNLOAD", 2000);
+	HAL_Delay(1000);
+
+	char* json = malloc(150);
+	char lat[10],lng[10];
+	ftoa(data1,lat,4);
+	ftoa(data2, lng, 4);
+	sprintf(json, "{\"ID\":\"tungvoson98@gmail.com\",\"Location\":{\"latitude\":\"%s\",\"longitude\":\"%s\"},\"User\":\"D16Hr73bmZPFxlMfcjx0f7iCJqdFGhpElc9RtZAo\"}", lat, lng); // @suppress("Float formatting support")
+	if(simcom_at_command(json, "OK", 10000) == 1)
+	{
+		simcom_gprs_http_set_ssl();
+
+		simcom_at_command("AT+HTTPACTION=1", "+HTTPACTION:", 1000);
+		HAL_Delay(1000);
+		free(json);
+	}
+}
+
+void firebase_update1(float data1, float data2)
+{
+	simcom_at_command("AT+HTTPPARA=\"URL\",\"https://key-gps-tracking-default-rtdb.firebaseio.com/id.json?x-http-method-override=PATCH\"", "OK", 1000);
+	HAL_Delay(500);
+
+	simcom_at_command("AT+HTTPPARA=\"CONTENT\",\"application/json\"", "OK", 1000);
+	HAL_Delay(500);
+
+	simcom_at_command("AT+HTTPDATA=100,5000", "DOWNLOAD", 1000);
+	HAL_Delay(500);
+
+	char* json = malloc(100);
+	char lat[10],lng[10];
+	ftoa(data1,lat,4);
+	ftoa(data2, lng, 4);
+	sprintf(json, "{\"user\":\"HdN5SFXjEEamZksgFDpN2joyMAh66IfoBtmgRRYO\",\"lat\":\"%s\",\"lng\":\"%s\"}", lat, lng); // @suppress("Float formatting support")
+	strcpy(json_test, json);
 	if(simcom_at_command(json, "OK", 25000) == 1)
 	{
 		simcom_gprs_http_set_ssl();
+
 		simcom_at_command("AT+HTTPACTION=1", "+HTTPACTION:", 1000);
 		HAL_Delay(1000);
+		free(json);
 	}
-
-
 }
-//void firebase_update(float data1, float data2)
-//{
-//	simcom_at_command("AT+HTTPPARA=\"URL\",\"https://key-gps-tracking-default-rtdb.firebaseio.com/id.json?x-http-method-override=PATCH\"", "OK", 1000);
-//	HAL_Delay(500);
-//
-//	simcom_at_command("AT+HTTPPARA=\"CONTENT\",\"application/json\"", "OK", 1000);
-//	HAL_Delay(500);
-//
-//	simcom_at_command("AT+HTTPDATA=100,5000", "DOWNLOAD", 1000);
-//	HAL_Delay(500);
-//
-//	char* json = malloc(80);
-//	char lat[10],lng[10];
-//	ftoa(data1,lat,4);
-//	ftoa(data2, lng, 4);
-//	sprintf(json, "{\"user\":\"HdN5SFXjEEamZksgFDpN2joyMAh66IfoBtmgRRYO\",\"lat\":\"%s\",\"lng\":\"%s\"}", lat, lng); // @suppress("Float formatting support")
-//	strcpy(json_test, json);
-//	if(simcom_at_command(json, "OK", 25000) == 1)
-//	{
-//		simcom_gprs_http_set_ssl();
-//
-//		simcom_at_command("AT+HTTPACTION=1", "+HTTPACTION:", 1000);
-//		HAL_Delay(1000);
-//		free(json);
-//	}
-//}
 
 
 char* firebase_read_json()

@@ -8,5 +8,7 @@ ST47_Sim800.c:113:6:simcom_gprs_http_end	8	static
 ST47_Sim800.c:119:6:simcom_gprs_end	8	static
 ST47_Sim800.c:125:6:simcom_gprs_init	8	static
 ST47_Sim800.c:133:6:simcom_send_sms	56	static
-ST47_Sim800.c:152:6:firebase_update	320	static
-ST47_Sim800.c:208:7:firebase_read_json	8	static
+ST47_Sim800.c:152:6:firebase_update	216	static
+ST47_Sim800.c:179:6:firebase_update2	48	static
+ST47_Sim800.c:205:6:firebase_update1	48	static
+ST47_Sim800.c:233:7:firebase_read_json	8	static
