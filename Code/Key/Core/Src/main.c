@@ -64,10 +64,9 @@ static void MX_USART3_UART_Init(void);
 uint32_t time_get_gps = 0;
 extern GPS_Struct gps;
 bool flag = true;
-char firebase_url[100] 	= "https://ggmaptest-304715-default-rtdb.firebaseio.com/";
-char device_id[10] 	= "47N198";
+char firebase_url[70] 	= "https://ggmaptest-304715-default-rtdb.firebaseio.com/";
+char device_id[10] 		= "51A89999";
 char user_id[30]		= "tungvoson98@gmail.com";
-char secret_key[50]	= "D16Hr73bmZPFxlMfcjx0f7iCJqdFGhpElc9RtZAo";
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -112,8 +111,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
   simcom_init();
   gps_init();
-//  firebase_update("https://ggmaptest-304715-default-rtdb.firebaseio.com/", "98N21033", "tungvoson98@gmail.com", "D16Hr73bmZPFxlMfcjx0f7iCJqdFGhpElc9RtZAo", 1.000, 2.000);
-// firebase_update2(1.0000, 2.0000);
 
   /* USER CODE END 2 */
 
@@ -124,21 +121,14 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(HAL_GetTick() - time_get_gps > 10000)
+	  if(HAL_GetTick() - time_get_gps > 5000)
 	  {
 		  flag = false;
 		  time_get_gps = HAL_GetTick();
 		  gps_process_data(gps.buffer);
-//		  firebase_update("https://ggmaptest-304715-default-rtdb.firebaseio.com/", "47N198", "tungvoson98@gmail.com", "D16Hr73bmZPFxlMfcjx0f7iCJqdFGhpElc9RtZAo", gps_get_latitude(), gps_get_longitude());
-//		  firebase_update2(gps_get_latitude(), gps_get_longitude());
-		  firebase_update(firebase_url, device_id, user_id, secret_key, gps_get_latitude(), gps_get_longitude());
+		  firebase_update(firebase_url, device_id, user_id, gps_get_latitude(), gps_get_longitude());
 		  flag = true;
 	  }
-//	  firebase_update2(data1, data2);
-//	  data1 ++;
-//	  data2 ++;
-//	  HAL_Delay(1000);
-
   }
   /* USER CODE END 3 */
 }
