@@ -4,3 +4,4 @@ ST47_Neo6M.c:27:6:gps_callback	8	static
 ST47_Neo6M.c:55:6:gps_process_data	24	static
 ST47_Neo6M.c:77:7:gps_get_latitude	8	static
 ST47_Neo6M.c:82:7:gps_get_longitude	8	static
+ST47_Neo6M.c:87:7:gps_get_time	4	static

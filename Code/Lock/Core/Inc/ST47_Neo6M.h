@@ -50,5 +50,5 @@ void gps_process_data();
 float convert(float degMin);
 float gps_get_latitude();
 float gps_get_longitude();
-
+char* gps_get_time();
 #endif /* INC_ST47_NEO6M_H_ */

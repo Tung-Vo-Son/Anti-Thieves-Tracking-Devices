@@ -67,7 +67,6 @@ bool flag = true;
 char firebase_url[70] 	= "https://ggmaptest-304715-default-rtdb.firebaseio.com/";
 char device_id[10] 		= "51A89999";
 char user_id[30]		= "tungvoson98@gmail.com";
-
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart->Instance == USART1 && flag == true)

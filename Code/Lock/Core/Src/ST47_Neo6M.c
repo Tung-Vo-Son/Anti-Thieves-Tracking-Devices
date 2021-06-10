@@ -83,3 +83,8 @@ float gps_get_longitude()
 {
 	return convert(gps.gpgga.longtitude);
 }
+
+char* gps_get_time()
+{
+	return gps.gpgga.time;
+}
