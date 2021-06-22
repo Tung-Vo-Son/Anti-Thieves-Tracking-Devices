@@ -1,0 +1,14 @@
+Removed Pin From Net: NetName=NetSW1_4 Pin=SW1-4
+Removed Pin From Net: NetName=NetSW2_4 Pin=SW2-4
+Removed Pin From Net: NetName=NetSW3_4 Pin=SW3-4
+Removed Pin From Net: NetName=NetSW2_4 Pin=U1-14
+Removed Pin From Net: NetName=NetSW3_4 Pin=U1-15
+Added Pin To Net: NetName=NetSW1_4 Pin=SW1-2
+Added Pin To Net: NetName=NetSW2_4 Pin=SW2-2
+Added Pin To Net: NetName=NetSW3_4 Pin=SW3-2
+Added Pin To Net: NetName=NetSW3_4 Pin=U1-11
+Added Pin To Net: NetName=NetSW2_4 Pin=U1-12
+Change Net Name : Old Net Name=NetSW1_4 New Net Name=NetSW1_2
+Change Net Name : Old Net Name=NetSW2_4 New Net Name=NetSW2_2
+Change Net Name : Old Net Name=NetSW3_4 New Net Name=NetSW3_2
+Added Room: Name=Key

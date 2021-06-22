@@ -79,7 +79,6 @@ void simcom_init()
 	simcom_gprs_init();
 }
 
-
 void simcom_gprs_start()
 {
 	simcom_at_command("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"", "OK", 3000);
@@ -146,8 +145,8 @@ void simcom_send_sms(char* phone_number, char* message)
 		sprintf(sms, "%s%c",message,26);
 		simcom_at_command((char*)sms, "OK", 5000);
 	}
-
 }
+
 
 void firebase_update(char* url, char* device_id, char* user_id, float data1, float data2)
 {
@@ -160,7 +159,7 @@ void firebase_update(char* url, char* device_id, char* user_id, float data1, flo
 	simcom_at_command("AT+HTTPPARA=\"CONTENT\",\"application/json\"", "OK", 1000);
 	HAL_Delay(500);
 
-	simcom_at_command("AT+HTTPDATA=200,5000", "DOWNLOAD", 10000);
+	simcom_at_command("AT+HTTPDATA=200,7000", "DOWNLOAD", 10000);
 	HAL_Delay(500);
 
 	char* json = malloc(150);
@@ -168,67 +167,22 @@ void firebase_update(char* url, char* device_id, char* user_id, float data1, flo
 	ftoa(data1, lat, 4);
 	ftoa(data2, lng, 4);
 	sprintf(json, "{\"ID\":\"%s\",\"Location\":{\"latitude\":\"%s\",\"longitude\":\"%s\"}}", user_id, lat, lng);
-	if(simcom_at_command(json, "OK", 5000) == 1)
+	if(simcom_at_command(json, "OK", 7000) == 1)
 	{
 		simcom_gprs_http_set_ssl();
-		simcom_at_command("AT+HTTPACTION=1", "+HTTPACTION:", 5000);
+		if(simcom_at_command("AT+HTTPACTION=1", "+HTTPACTION:1,200", 5000) == 1)
+		{
+			simcom.firebase.post_status = true;
+		}
+		else simcom.firebase.post_status = false;
 		free(json);
 	}
 }
 
-void firebase_update2(float data1, float data2)
+bool firebase_post_status()
 {
-	simcom_at_command("AT+HTTPPARA=\"URL\",\"https://ggmaptest-304715-default-rtdb.firebaseio.com/98N21033.json?x-http-method-override=PATCH\"", "OK", 1000);
-	HAL_Delay(1000);
-
-	simcom_at_command("AT+HTTPPARA=\"CONTENT\",\"application/json\"", "OK", 1000);
-	HAL_Delay(1000);
-
-	simcom_at_command("AT+HTTPDATA=200,10000", "DOWNLOAD", 2000);
-	HAL_Delay(1000);
-
-	char* json = malloc(150);
-	char lat[10],lng[10];
-	ftoa(data1,lat,4);
-	ftoa(data2, lng, 4);
-	sprintf(json, "{\"ID\":\"tungvoson98@gmail.com\",\"Location\":{\"latitude\":\"%s\",\"longitude\":\"%s\"},\"User\":\"D16Hr73bmZPFxlMfcjx0f7iCJqdFGhpElc9RtZAo\"}", lat, lng); // @suppress("Float formatting support")
-	if(simcom_at_command(json, "OK", 10000) == 1)
-	{
-		simcom_gprs_http_set_ssl();
-
-		simcom_at_command("AT+HTTPACTION=1", "+HTTPACTION:", 1000);
-		HAL_Delay(1000);
-		free(json);
-	}
+	return simcom.firebase.post_status;
 }
-
-void firebase_update1(float data1, float data2)
-{
-	simcom_at_command("AT+HTTPPARA=\"URL\",\"https://key-gps-tracking-default-rtdb.firebaseio.com/id.json?x-http-method-override=PATCH\"", "OK", 1000);
-	HAL_Delay(500);
-
-	simcom_at_command("AT+HTTPPARA=\"CONTENT\",\"application/json\"", "OK", 1000);
-	HAL_Delay(500);
-
-	simcom_at_command("AT+HTTPDATA=100,5000", "DOWNLOAD", 1000);
-	HAL_Delay(500);
-
-	char* json = malloc(100);
-	char lat[10],lng[10];
-	ftoa(data1,lat,4);
-	ftoa(data2, lng, 4);
-	sprintf(json, "{\"user\":\"HdN5SFXjEEamZksgFDpN2joyMAh66IfoBtmgRRYO\",\"lat\":\"%s\",\"lng\":\"%s\"}", lat, lng); // @suppress("Float formatting support")
-	strcpy(json_test, json);
-	if(simcom_at_command(json, "OK", 25000) == 1)
-	{
-		simcom_gprs_http_set_ssl();
-
-		simcom_at_command("AT+HTTPACTION=1", "+HTTPACTION:", 1000);
-		HAL_Delay(1000);
-		free(json);
-	}
-}
-
 
 char* firebase_read_json()
 {

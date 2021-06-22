@@ -42,7 +42,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart1;
-UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
@@ -53,7 +52,6 @@ UART_HandleTypeDef huart3;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
-static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -65,13 +63,29 @@ uint32_t time_get_gps = 0;
 extern GPS_Struct gps;
 bool flag = true;
 char firebase_url[70] 	= "https://ggmaptest-304715-default-rtdb.firebaseio.com/";
-char device_id[10] 		= "51A89999";
+char device_id[10] 		= "98N21033";
 char user_id[30]		= "tungvoson98@gmail.com";
+
+enum Lock_State
+{
+	GPS_MODE,			// Receiving gps coordinate
+	CLIENT_MODE,		// Sending data to server
+}lock_state;
+
+
+void lock_enter_sleep_mode()
+{
+	HAL_SuspendTick();
+	HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+	HAL_ResumeTick();
+}
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	if(huart->Instance == USART1 && flag == true)
+	if(huart->Instance == USART1)
 	{
-		gps_callback();
+		neo_callback();
+		HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 	}
 }
 /* USER CODE END 0 */
@@ -105,12 +119,11 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART1_UART_Init();
-  MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
+  neo_init();
   simcom_init();
-  gps_init();
-
+  lock_state = GPS_MODE;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -120,14 +133,32 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(HAL_GetTick() - time_get_gps > 5000)
+	  switch(lock_state)
 	  {
-		  flag = false;
-		  time_get_gps = HAL_GetTick();
-		  gps_process_data(gps.buffer);
-		  firebase_update(firebase_url, device_id, user_id, gps_get_latitude(), gps_get_longitude());
-		  flag = true;
+	  	  case	GPS_MODE:
+	  		  if(gps.flag == true)
+	  		  {
+	  			  neo_gps_process_data(gps.buffer);
+	  			  lock_state = CLIENT_MODE;
+	  		  }
+	  	  case	CLIENT_MODE:
+	  		  firebase_update(firebase_url, device_id, user_id, neo_get_gps_latitude(), neo_get_gps_longitude());
+	  		  lock_state = GPS_MODE;
 	  }
+//	  if(neo_gps_message_comleted() ==  true) lock_state = CLIENT_MODE;
+//	  if(lock_state == CLIENT_MODE)
+//	  {
+//		  neo_gps_process_data(gps.buffer);
+//		  firebase_update(firebase_url, device_id, user_id, data1, data2);
+//		  data1 += 1.0000;
+//		  data2 += 2.0000;
+//		  lock_state = GPS_MODE;
+//		  gps.flag = false;
+//	  }
+//	  if(lock_state == GPS_MODE)
+//	  {
+//		  lock_enter_sleep_mode();
+//	  }
   }
   /* USER CODE END 3 */
 }
@@ -204,39 +235,6 @@ static void MX_USART1_UART_Init(void)
 }
 
 /**
-  * @brief USART2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART2_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART2_Init 0 */
-
-  /* USER CODE END USART2_Init 0 */
-
-  /* USER CODE BEGIN USART2_Init 1 */
-
-  /* USER CODE END USART2_Init 1 */
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART2_Init 2 */
-
-  /* USER CODE END USART2_Init 2 */
-
-}
-
-/**
   * @brief USART3 Initialization Function
   * @param None
   * @retval None
@@ -279,20 +277,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPS_VOLTAGE_GPIO_Port, GPS_VOLTAGE_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : LED_Pin */
-  GPIO_InitStruct.Pin = LED_Pin;
+  /*Configure GPIO pin : GPS_VOLTAGE_Pin */
+  GPIO_InitStruct.Pin = GPS_VOLTAGE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPS_VOLTAGE_GPIO_Port, &GPIO_InitStruct);
 
 }
 

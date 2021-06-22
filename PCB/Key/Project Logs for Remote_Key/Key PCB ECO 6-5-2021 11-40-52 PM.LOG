@@ -1,0 +1,5 @@
+Removed Pin From Net: NetName=GND Pin=SW1-3
+Removed Pin From Net: NetName=GND Pin=SW2-3
+Removed Pin From Net: NetName=GND Pin=SW3-3
+Added Member To Class: ClassName=Key Member=Component JP1 JP 1x4 2.54
+Added Room: Name=Key

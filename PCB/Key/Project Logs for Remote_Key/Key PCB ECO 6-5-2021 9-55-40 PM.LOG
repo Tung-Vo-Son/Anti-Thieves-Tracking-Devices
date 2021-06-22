@@ -1,0 +1,10 @@
+Added Component: Designator=SW4(SW4)
+Add component. Clean all parameters for all variants
+Add component (AddParameter): Name = "Value"; Value = "Button chip 4 pin"; VariantName = "[No Variations]"
+Added Pin To Net: NetName=GND Pin=SW4-1
+Added Pin To Net: NetName=GND Pin=SW4-3
+Added Pin To Net: NetName=NetSW4_2 Pin=SW4-2
+Added Pin To Net: NetName=NetSW4_2 Pin=U1-16
+Added Net: Name=NetSW4_2
+Added Member To Class: ClassName=Key Member=Component SW4 SW
+Added Room: Name=Key

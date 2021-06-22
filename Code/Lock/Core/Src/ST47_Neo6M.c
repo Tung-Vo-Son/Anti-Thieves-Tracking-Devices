@@ -8,7 +8,7 @@
 
 #include "ST47_Neo6M.h"
 GPS_Struct gps;
-extern bool flag;
+
 float convert(float location)
 {
 	 float degrees = floor(location / 100);
@@ -18,13 +18,24 @@ float convert(float location)
 	 return degrees;
 }
 
-void gps_init()
+void neo_init()
 {
 	gps.index = 0;
+	neo_on();
 	HAL_UART_Receive_IT(&huart1, &gps.rx, 1);
 }
 
-void gps_callback()
+void neo_on()
+{
+	HAL_GPIO_WritePin(GPS_VOLTAGE_GPIO_Port, GPS_VOLTAGE_Pin, GPIO_PIN_SET);
+}
+
+void neo_off()
+{
+	HAL_GPIO_WritePin(GPS_VOLTAGE_GPIO_Port, GPS_VOLTAGE_Pin, GPIO_PIN_RESET);
+}
+
+void neo_callback()
 {
 	if(gps.rx == '\n')
 	{
@@ -35,26 +46,14 @@ void gps_callback()
 	HAL_UART_Receive_IT(&huart1, &gps.rx, 1);
 }
 
-//void GPS_GetData()
-//{
-//	if(gps.flag == true)
-//	{
-//		char* response = strstr((char*)gps.buffer, "$GPGGA");
-//		if(response != NULL)
-//		{
-//			memset(&gps.gpgga, 0, sizeof(gps.gpgga));
-//			sscanf(response,"$GPGGA, %2hhd%2hhd%2hhd.%3hd,%f,%c,%f,%c,%hhd,%hhd,%f,%f,%c,%hd,%s,*%2s\r\n", &gps.gpgga.utc_hour, &gps.gpgga.utc_min, &gps.gpgga.utc_sec, &gps.gpgga.utc_microsec, &gps.gpgga.latitude_raw, &gps.gpgga.ns_indicator, &gps.gpgga.longtitude_raw, &gps.gpgga.ew_indicator, &gps.gpgga.gps_quality_indicator, &gps.gpgga.num_of_satellites, &gps.gpgga.hdop, &gps.gpgga.msl_altitude, &gps.gpgga.msl_units, &gps.gpgga.age_of_diffCorr, gps.gpgga.diff_ref_station_id, gps.gpgga.checksum); // @suppress("Float formatting support")
-//			gps.gpgga.latitude = Convert(gps.gpgga.latitude_raw);
-//			gps.gpgga.longtitude = Convert(gps.gpgga.longtitude_raw);
-//		}
-//		HAL_UART_Transmit(&debug, gps.buffer, sizeof(gps.buffer), 2000);
-//		gps.flag = false;
-//	}
-//}
-
-void gps_process_data(char* buffer)
+bool neo_gps_message_comleted()
 {
-	if(gps.flag == true)
+	return gps.flag;
+}
+
+void neo_gps_process_data(char* buffer)
+{
+	if(neo_gps_message_comleted() == true)
 	{
 //		HAL_UART_Transmit(&debug, gps.buffer, sizeof(gps.buffer), 2000);
 		char* response = malloc(strlen(gps.buffer) + 1);
@@ -74,17 +73,12 @@ void gps_process_data(char* buffer)
 	}
 }
 
-float gps_get_latitude()
+float neo_get_gps_latitude()
 {
 	return convert(gps.gpgga.latitude);
 }
 
-float gps_get_longitude()
+float neo_get_gps_longitude()
 {
 	return convert(gps.gpgga.longtitude);
-}
-
-char* gps_get_time()
-{
-	return gps.gpgga.time;
 }

@@ -17,6 +17,7 @@
 
 extern UART_HandleTypeDef huart1;
 
+
 typedef struct
 {
 	/* Header */
@@ -34,21 +35,23 @@ typedef struct
 
 typedef struct
 {
-	uint32_t process_time;
 	uint8_t rx;
 	uint8_t index;
-	uint8_t buffer[40];
+	uint8_t buffer[100];
 	bool flag;
 
 	GPGGA_Struct gpgga;
 
 }GPS_Struct;
 
-void gps_init();
-void gps_callback();
-void gps_process_data();
+void neo_init();
+void neo_on();
+void neo_off();
+void neo_callback();
+bool neo_gps_message_comleted();
+void neo_gps_process_data();
 float convert(float degMin);
-float gps_get_latitude();
-float gps_get_longitude();
-char* gps_get_time();
+float neo_get_gps_latitude();
+float neo_get_gps_longitude();
+
 #endif /* INC_ST47_NEO6M_H_ */

@@ -61,8 +61,8 @@ all: main-build
 main-build: Anti_Thieves_Lock.elf secondary-outputs
 
 # Tool invocations
-Anti_Thieves_Lock.elf: $(OBJS) $(USER_OBJS) D:\Engineering\Lap_trinh\CubeIDE\Anti-Thieves-Tracking-Devices\Code\Key\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Anti_Thieves_Lock.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"D:\Engineering\Lap_trinh\CubeIDE\Anti-Thieves-Tracking-Devices\Code\Key\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Anti_Thieves_Lock.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Anti_Thieves_Lock.elf: $(OBJS) $(USER_OBJS) D:\Engineering\Night_Owl\Anti-Thieves-Tracking-Devices-Ver2\Code\Lock\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "Anti_Thieves_Lock.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"D:\Engineering\Night_Owl\Anti-Thieves-Tracking-Devices-Ver2\Code\Lock\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Anti_Thieves_Lock.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

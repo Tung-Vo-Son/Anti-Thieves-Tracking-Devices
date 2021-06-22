@@ -1,0 +1,7 @@
+Removed Pin From Net: NetName=NetSW1_4 Pin=SW1-4
+Added Pin To Net: NetName=NetSW1_4 Pin=SW1-2
+Change Net Name : Old Net Name=NetSW1_4 New Net Name=NetSW1_2
+Added Member To Class: ClassName=Key Member=Component BT1 PIN 3V
+Added Member To Class: ClassName=Key Member=Component C1 104
+Added Member To Class: ClassName=Key Member=Component JP1 JP 1x4 2.54
+Added Room: Name=Key

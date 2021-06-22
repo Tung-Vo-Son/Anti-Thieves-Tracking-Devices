@@ -13,6 +13,7 @@
 #include "string.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include "stdbool.h"
 
 #define SIMCOM_RESPONSE_MAX_SIZE	100
 
@@ -25,16 +26,21 @@ typedef struct
 
 typedef struct
 {
+	bool post_status;
+}Firebase_Struct;
+
+typedef struct
+{
 	AT_Command_Struct	at_cmd;
+	Firebase_Struct		firebase;
 }Simcom_Struct;
 
 
 /* ---------Simcom AT Function-------------*/
 void simcom_delete_buffer(char* buffer);
 uint8_t simcom_at_command(char* command, char* response, uint32_t timeout);
-
-/*----------Simcom Function----------------*/
 void simcom_init();
+void simcom_enter_sleep_mode();
 
 /*----------Simcom Message-----------------*/
 void simcom_send_sms(char* phone_number, char* message);
@@ -47,11 +53,10 @@ void simcom_gprs_http_start();
 void simcom_gprs_http_end();
 void simcom_gprs_end();
 void simcom_gprs_http_set_ssl();
+bool simcom_server_post_status();
 
 /*----------Simcom Firebase-------------*/
-void firebase_update1(float data1, float data2);
-void firebase_update2(float data1, float data2);
 void firebase_update(char* url, char* device_id, char* user_id, float data1, float data2);
 char* firebase_read_json();
-
+bool firebase_post_status();
 #endif /* INC_ST47_SIM800_H_ */
